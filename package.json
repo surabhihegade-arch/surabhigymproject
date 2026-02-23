@@ -1,0 +1,15 @@
+{
+  "name": "gymproject",
+  "version": "1.0.0",
+  "description": "Premium Gym Management Website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "init": "node init_db.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.22.1",
+    "sqlite3": "^5.1.7"
+  }
+}

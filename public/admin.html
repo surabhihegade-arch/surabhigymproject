@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Surabhi Gym</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --appColor: #3c3f45;
+            --orange: #f48915;
+            --darkGrey: #464d53;
+        }
+
+        body {
+            background-color: var(--appColor);
+            font-family: 'Outfit', sans-serif;
+            color: white;
+        }
+
+        .admin-section {
+            padding: 50px 5%;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            background: var(--darkGrey);
+            color: white;
+            border: 2px solid transparent;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .tab-btn:hover,
+        .tab-btn.active {
+            border-color: var(--orange);
+            background: var(--appColor);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: var(--darkGrey);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #555;
+        }
+
+        th {
+            background: #333;
+            color: var(--orange);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        tr:hover {
+            background: #555;
+        }
+
+        .highlight {
+            color: var(--orange);
+        }
+
+        .logo span {
+            color: var(--orange);
+        }
+
+        .status-active {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">SURABHI <span>ADMIN</span></div>
+        <ul>
+            <li><a href="index.html">View Site</a></li>
+        </ul>
+    </nav>
+
+    <div class="admin-section">
+        <h1 class="section-title">ADMIN <span class="highlight">DASHBOARD</span></h1>
+        
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('inquiries')">Inquiries</button>
+            <button class="tab-btn" onclick="switchTab('memberships')">Memberships</button>
+            <button class="tab-btn" onclick="switchTab('users')">Users</button>
+        </div>
+
+        <!-- Inquiries Tab -->
+        <div id="inquiries" class="tab-content active">
+            <h2 class="highlight">MEMBERSHIP INQUIRIES</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Goals</th>
+                    </tr>
+                </thead>
+                <tbody id="inquiry-body">
+                    <!-- Inquiries will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Memberships Tab -->
+        <div id="memberships" class="tab-content">
+            <h2 class="highlight">ACTIVE MEMBERSHIPS</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Member</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Plan</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="membership-body">
+                    <!-- Memberships will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="users" class="tab-content">
+            <h2 class="highlight">REGISTERED USERS</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                    </tr>
+                </thead>
+                <tbody id="users-body">
+                    <!-- Users will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInquiries();
+            loadMemberships();
+            loadUsers();
+        });
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Highlight button
+            event.target.classList.add('active');
+        }
+
+        async function loadInquiries() {
+            try {
+                const response = await fetch('/api/admin/inquiries');
+                const inquiries = await response.json();
+                const body = document.getElementById('inquiry-body');
+
+                body.innerHTML = inquiries.map(i => `
+                    <tr>
+                        <td style="color: var(--text-gray); font-size: 0.8rem;">${new Date(i.created_at).toLocaleDateString()}</td>
+                        <td style="font-weight: 700;">${i.name}</td>
+                        <td>${i.email}</td>
+                        <td>${i.phone || 'N/A'}</td>
+                        <td style="font-size: 0.9rem; color: var(--text-gray);">${i.message}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadMemberships() {
+            try {
+                const response = await fetch('/api/admin/memberships');
+                const memberships = await response.json();
+                const body = document.getElementById('membership-body');
+
+                body.innerHTML = memberships.map(m => `
+                    <tr>
+                        <td style="color: var(--text-gray); font-size: 0.8rem;">${new Date(m.start_date).toLocaleDateString()}</td>
+                        <td style="font-weight: 700;">${m.name}</td>
+                        <td>${m.email}</td>
+                        <td>${m.phone || 'N/A'}</td>
+                        <td style="color: var(--orange);">${m.plan_name}</td>
+                        <td>${m.price}</td>
+                        <td class="status-active">${m.status}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const users = await response.json();
+                const body = document.getElementById('users-body');
+
+                body.innerHTML = users.map(u => `
+                    <tr>
+                        <td style="color: var(--text-gray); font-size: 0.8rem;">${new Date(u.created_at).toLocaleDateString()}</td>
+                        <td style="font-weight: 700;">${u.name}</td>
+                        <td>${u.email}</td>
+                        <td>${u.phone || 'N/A'}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+
+</html>
